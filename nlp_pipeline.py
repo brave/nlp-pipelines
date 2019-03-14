@@ -3,6 +3,8 @@ from enum import Enum
 from datetime import datetime
 import json
 
+PIPELINE_VERSION='0.1'
+
 class Language(Enum):
     EN = "EN"
     DE = "DE"
@@ -50,6 +52,7 @@ class NLP_Model:
         return self.classifier.predict(rep)
     def to_json(self):
         rtn = {}
+        rtn['version'] = PIPELINE_VERSION
         rtn['time'] = str(datetime.utcnow())
         rtn['language'] = self.language
         rtn['representation'] = self.representation.to_json()
