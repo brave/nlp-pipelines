@@ -1,9 +1,11 @@
-from classifier import Classifier, Classifier_Type
+from transformation import apply_transform
+from classifier import Classifier, Classifier_Type, classifier_from_proto
 from enum import Enum
 from datetime import datetime
 import json
+from pipeline_pb2 import Pipeline
 
-PIPELINE_VERSION='0.1'
+PIPELINE_VERSION = 0
 
 class Language(Enum):
     EN = "EN"
@@ -11,54 +13,41 @@ class Language(Enum):
     FR = "FR"
     JA = "JA"
 
-class NLP_Representation:
-    ''' Poor man's pipeline implementation to keep things somewhat consistent and 
-        reproducible in NLP pipelines that can be ported to C++ 
-    '''
-    def __init__(self, transforms):
-        self.transforms = transforms
-    def apply_transforms(self, texts):
-        ''' linear apply operation'''
-        last_step = texts
-        for transform in self.transforms:
-            this_step = transform.apply_transform(last_step)
-            last_step = this_step
-        return last_step
-    def to_json(self):
-        rtn = {}
-        tmp=[]
-        for transform in self.transforms:
-            tmp.append(transform.to_json())
-        rtn['transforms']=tmp
-        return json.dumps(rtn)
-
-
 class NLP_Model:
-    def __init__(self, language, representation=None, classifier_type=Classifier_Type.NB):
+    def __init__(self, language, representation=None, 
+                classifier_type=Classifier_Type.NB, version = PIPELINE_VERSION, 
+                classifier = None):
         if language not in Language.__members__:
             raise ValueError('Unknown language')
+        self.version = version
         self.language = language
         self.representation=representation
-        self.classifier = Classifier(classifier_type=classifier_type)
+        if classifier is None:
+            self.classifier = Classifier(classifier_type=classifier_type)
+        else:
+            self.classifier = classifier
+    def apply_transforms(self, data):
+        tmp = data
+        for transform in self.representation:
+            tmp = apply_transform(transform, tmp)
+        return tmp
     def train(self, data, labels):
         rep = data
         if self.representation is not None:
-            rep = self.representation.apply_transforms(data)
+            rep = self.apply_transforms(data)
         self.classifier.train(rep,labels)
     def predict(self, data):
         rep = data
         if self.representation is not None:
             rep = self.representation.apply_transforms(data)
         return self.classifier.predict(rep)
-    def to_json(self):
-        rtn = {}
-        rtn['version'] = PIPELINE_VERSION
-        rtn['time'] = str(datetime.utcnow())
-        rtn['language'] = self.language
-        rtn['representation'] = self.representation.to_json()
-        rtn['classifier'] = self.classifier.to_json()
-        return json.dumps(rtn)
-    def save(self,filename):
-        model_json=self.to_json()
-        with open(filename,'w') as f:
-            f.write(model_json)
+    def to_proto(self):
+        return Pipeline(version = self.version, language = self.language, 
+                timestamp = str(datetime.utcnow()), representation = self.representation,
+                classifier = self.classifier)
+
+def model_from_proto(model_proto):
+    return NLP_Model(version = model_proto.version, 
+                    language=model_proto.language, 
+                    representation=model_proto.representation,
+                    classifier = classifier_from_proto(model_proto.classifier))

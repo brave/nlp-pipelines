@@ -1,0 +1,46 @@
+syntax = "proto3";
+package pipelines;
+
+message To_lower{
+}
+
+message Hash_ngram{
+    int32 num_buckets = 1; 
+    repeated int32 hash_sizes = 2;
+}
+
+message Transformation{
+    oneof Representation{
+        To_lower to_lower= 1;
+        Hash_ngram hash_ngram= 2; 
+    }
+}
+
+message Vector{
+    repeated float elements = 1;
+}
+
+message Naive_bayes{
+    repeated string classes = 1;
+    repeated Vector vectors = 2;
+    repeated float class_priors = 3;
+}
+
+message Linear_classifier{
+    repeated string classes = 1;
+}
+
+message Classifier{
+    oneof classifier{
+        Naive_bayes nb = 1;
+        Linear_classifier lc = 2; 
+    }
+}
+
+message Pipeline{
+    int version = 1; 
+    string language = 2;
+    string timestamp = 3; 
+    repeated Transformation representation = 4;
+    Classifier classifier = 5;   
+}

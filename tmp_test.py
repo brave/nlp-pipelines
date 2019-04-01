@@ -1,5 +1,5 @@
 from transformation import Transformation, Transformation_Type
-from nlp_pipeline import NLP_Representation, NLP_Model
+from nlp_pipeline import NLP_Model
 from classifier import classifier_from_json
 import json 
 

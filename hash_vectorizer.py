@@ -6,7 +6,7 @@ def ngram_hash(text, n, num_buckets=10000):
     ''' Hash a string of text to a series of integer values
         based on its substrings modulo a number of 'buckets' '''
     rtn = []
-    for i in range( len(text) -n ):
+    for i in range( len(text) -n +1):
         fragment = bytes(text[i:(i+n)], 'utf-8')
         rtn.append( crc32(fragment) % num_buckets )
     return rtn 
