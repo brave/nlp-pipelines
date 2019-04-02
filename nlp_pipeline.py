@@ -39,15 +39,26 @@ class NLP_Model:
     def predict(self, data):
         rep = data
         if self.representation is not None:
-            rep = self.representation.apply_transforms(data)
+            rep = self.apply_transforms(data)
         return self.classifier.predict(rep)
     def to_proto(self):
         return Pipeline(version = self.version, language = self.language, 
                 timestamp = str(datetime.utcnow()), representation = self.representation,
-                classifier = self.classifier)
+                classifier = self.classifier.to_proto())
+    def save(self, filename):
+        tmp = self.to_proto()
+        with open(filename, 'wb')as f:
+            f.write(tmp.SerializeToString())
 
 def model_from_proto(model_proto):
     return NLP_Model(version = model_proto.version, 
                     language=model_proto.language, 
                     representation=model_proto.representation,
                     classifier = classifier_from_proto(model_proto.classifier))
+
+def load_model(filename):
+    tmp_model = Pipeline()
+    with open(filename,'rb') as f:
+        tmp_model.ParseFromString(f.read())
+    return model_from_proto(tmp_model)
+    
