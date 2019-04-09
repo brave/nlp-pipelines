@@ -1,7 +1,7 @@
-from pipeline_pb2 import Transformation, To_lower, Hash_ngram
-from nlp_pipeline import NLP_Model, load_model
-from classifier import classifier_from_proto
-import json 
+from nlp_pipelines.pipeline_pb2 import Transformation, To_lower, Hash_ngram, Vector
+from nlp_pipelines.nlp_pipeline import NLP_Model, load_model
+from nlp_pipelines.classifier import classifier_from_proto
+# import json 
 
 EPS = 1e-6
 

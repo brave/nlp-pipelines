@@ -3,9 +3,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression, PassiveAggressiveClassifier 
 import json
 import numpy as np
-# from pipeline_pb2 import Classifier, Vector
-import pipeline_pb2
-
+from . import pipeline_pb2
 class Classifier_Type(EnumMeta):
     NB = "NB"
     PA = "PA"
@@ -45,11 +43,11 @@ def build_classifier(classifier_type, params):
     Will be adding a simple inner-product op in the c++ codebase
 '''
 
-def jsonify(fp_containing_object,rounding_precision):
-    # the following nonsensical line does rounding for json by using full precision float on the dump
-    # reading back limited precision float on the read. Apparently they could bother with a parse_float 
-    # on only one of the two methods, ergo the roundtrip
-    return json.loads(json.dumps(fp_containing_object), parse_float= lambda x:round(float(x), rounding_precision ) )#,  parse_float=lambda x: round(float(x), rounding_precision))))
+# def jsonify(fp_containing_object,rounding_precision):
+#     # the following nonsensical line does rounding for json by using full precision float on the dump
+#     # reading back limited precision float on the read. Apparently they could bother with a parse_float 
+#     # on only one of the two methods, ergo the roundtrip
+#     return json.loads(json.dumps(fp_containing_object), parse_float= lambda x:round(float(x), rounding_precision ) )#,  parse_float=lambda x: round(float(x), rounding_precision))))
 
 class Classifier:
     def __init__(self, classifier_type = Classifier_Type.NB, classifier_params = {}):

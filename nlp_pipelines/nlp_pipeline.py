@@ -1,9 +1,9 @@
-from transformation import apply_transform
-from classifier import Classifier, Classifier_Type, classifier_from_proto
+from . transformation import apply_transform
+from . classifier import Classifier, Classifier_Type, classifier_from_proto
 from enum import Enum
 from datetime import datetime
 import json
-from pipeline_pb2 import Pipeline
+from . pipeline_pb2 import Pipeline
 
 PIPELINE_VERSION = 0
 

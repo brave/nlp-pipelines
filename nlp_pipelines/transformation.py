@@ -1,5 +1,5 @@
-from pipeline_pb2 import Transformation, To_lower, Hash_ngram
-from hash_vectorizer import get_dense_hash_count
+from . pipeline_pb2 import Transformation, To_lower, Hash_ngram
+from . hash_vectorizer import get_dense_hash_count
 
 HASHED_NGRAMS_DEFAULTS = {'n_range':[1,2,3,4,5,6], 'num_buckets':10000}
 
