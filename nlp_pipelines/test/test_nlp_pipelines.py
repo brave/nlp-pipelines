@@ -1,6 +1,6 @@
-from nlp_pipelines.pipeline_pb2 import Transformation, To_lower, Hash_ngram, Vector
+from nlp_pipelines.transformation import To_lower, Hashed_ngrams
 from nlp_pipelines.nlp_pipeline import NLP_Model, load_model
-from nlp_pipelines.classifier import classifier_from_proto
+
 # import json 
 
 EPS = 1e-6
@@ -9,19 +9,22 @@ def setup_data():
     train_messages = ['This is a spam email.', 
                  'Another spam trying to sell you viagra',
                  'Message from mom with no real subject', 
-                 'Another messase from mom with no real subject',
+                 'Another message from mom with no real subject',
                  'Yadayada']
     train_labels = ['spam', 'spam', 'ham', 'ham', 'junk']
 
     test_messages = ['Even more spam because we love selling you viagra',
-                'Dont forget to grab a jacket, love mom',
+                'Did you get my message? love mom',
                 'yada!']
     test_labels = ['spam', 'ham','junk']
     return (train_messages, train_labels, test_messages, test_labels)
 def setup_hashing_model():
-    return NLP_Model(language='EN', representation=[Transformation(to_lower = To_lower()) , 
-                    Transformation(hash_ngram = Hash_ngram(num_buckets=500, hash_sizes=[1,2,3,4,5]))], 
-                    classifier_type = 'NB')
+    to_lower = To_lower()
+    hashed_ngrams = Hashed_ngrams(num_buckets=500)
+    return NLP_Model(language='EN', representation=[to_lower, hashed_ngrams], 
+                    classifier_type = 'LINEAR')
+
+
 # Make sure we can train and predict reasonably well with a pipeline 
 def test_train_test_python():
     train_messages, train_labels, test_messages, test_labels = setup_data()

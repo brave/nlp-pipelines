@@ -9,6 +9,7 @@ def ngram_hash(text, n, num_buckets=10000):
     for i in range( len(text) -n +1):
         fragment = bytes(text[i:(i+n)], 'utf-8')
         rtn.append( crc32(fragment) % num_buckets )
+        # print("fragment: ", fragment, " hash: ", crc32(fragment) % num_buckets)
     return rtn 
 
 def count_hashed_ngrams(text, n_range=[1,2,3,4,5,6], num_buckets=10000):

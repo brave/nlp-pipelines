@@ -1,11 +1,10 @@
-from . transformation import apply_transform
-from . classifier import Classifier, Classifier_Type, classifier_from_proto
+from . classifier import Classifier, Classifier_Type
 from enum import Enum
 from datetime import datetime
 import json
-from . pipeline_pb2 import Pipeline
+#from . pipeline_pb2 import Pipeline
 
-PIPELINE_VERSION = 0
+PIPELINE_VERSION = 1
 
 class Language(Enum):
     EN = "EN"
@@ -15,7 +14,7 @@ class Language(Enum):
 
 class NLP_Model:
     def __init__(self, language, representation=None, 
-                classifier_type=Classifier_Type.NB, version = PIPELINE_VERSION, 
+                classifier_type=Classifier_Type.LINEAR, version = PIPELINE_VERSION, 
                 classifier = None):
         if language not in Language.__members__:
             raise ValueError('Unknown language')
@@ -29,7 +28,7 @@ class NLP_Model:
     def apply_transforms(self, data):
         tmp = data
         for transform in self.representation:
-            tmp = apply_transform(transform, tmp)
+            tmp = transform.apply( tmp )
         return tmp
     def train(self, data, labels):
         rep = data
@@ -41,24 +40,19 @@ class NLP_Model:
         if self.representation is not None:
             rep = self.apply_transforms(data)
         return self.classifier.predict(rep)
-    def to_proto(self):
-        return Pipeline(version = self.version, language = self.language, 
-                timestamp = str(datetime.utcnow()), representation = self.representation,
-                classifier = self.classifier.to_proto())
+    def to_json(self):
+        rtn = {"locale" : self.language}
+        rtn["version"] = PIPELINE_VERSION
+        rtn["timestamp"] = str( datetime.utcnow() )
+        rtn["transformations"] = []
+        for t in self.representation:
+            rtn["transformations"].append(t.to_json()) 
+        rtn["classifier"] = self.classifier.to_json()
+        return rtn
     def save(self, filename):
-        tmp = self.to_proto()
-        with open(filename, 'wb')as f:
-            f.write(tmp.SerializeToString())
-
-def model_from_proto(model_proto):
-    return NLP_Model(version = model_proto.version, 
-                    language=model_proto.language, 
-                    representation=model_proto.representation,
-                    classifier = classifier_from_proto(model_proto.classifier))
+        tmp = self.to_json()
+        with open(filename, 'w') as f:
+            f.write(json.dumps(tmp))
 
 def load_model(filename):
-    tmp_model = Pipeline()
-    with open(filename,'rb') as f:
-        tmp_model.ParseFromString(f.read())
-    return model_from_proto(tmp_model)
-    
+    pass

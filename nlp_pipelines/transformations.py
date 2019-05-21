@@ -9,7 +9,7 @@ class To_lower:
             rtn.append(str.lower())
         return rtn
     def to_json(self):
-        return { "transformation_type": "TO_LOWER"}
+        pass
 
 class Hashed_ngrams:
     def __init__(self, n_range = [1,2,3,4,5,6], num_buckets=[10000]):
@@ -18,8 +18,4 @@ class Hashed_ngrams:
     def apply(self, texts):
         return get_dense_hash_count(texts, n_range=[1,2,3,4,5,6], num_buckets=10000)
     def to_json(self):
-        rtn = { "transformation_type": "HASHED_NGRAMS"}
-        rtn['params'] = {}
-        rtn['params']['ngrams_range'] = self.n_range
-        rtn['params']['num_buckets'] = self.num_buckets
-        return rtn
+        pass
