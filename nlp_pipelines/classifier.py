@@ -1,5 +1,6 @@
 from enum import EnumMeta
 from sklearn.svm import LinearSVC
+from sklearn.linear_model import SGDClassifier
 import json
 import numpy as np
 # from . import pipeline_pb2
@@ -9,9 +10,11 @@ class Classifier_Type(EnumMeta):
 def build_classifier(classifier_type, **kwargs):
     if classifier_type == Classifier_Type.LINEAR:
         if 'C' in kwargs:
-            model = LinearSVC(C=kwargs['C'])
+            # model = LinearSVC(C=kwargs['C'])
+            model = SGDClassifier()
         else: 
-            model = LinearSVC()
+            model = SGDClassifier()
+            # model = LinearSVC()
         return model 
     else:
         raise ValueError('Unknown classifier type')
@@ -37,6 +40,9 @@ class Classifier:
         self.classifier_params = kwargs
         self.classifier = build_classifier(classifier_type, **kwargs)
         self.restored_from_file = False
+        self.name_to_labels = {}
+        self.label_to_name = {}
+        self.all_labels=[]
         # self.json_rep=None
     def train(self, data, labels):
         uniq_labels = sorted(list(set(labels)))
@@ -46,7 +52,18 @@ class Classifier:
         for label in labels:
             numeric_labels.append(self.name_to_labels[label])
         numeric_labels = np.array(numeric_labels)
-        self.classifier.fit(data, numeric_labels)        
+        self.classifier.fit(data, numeric_labels)
+    def partial_train(self, data, labels, uniq_labels):
+        if len(self.name_to_labels)==0:
+            self.name_to_labels={ uniq_label:i for i,uniq_label in enumerate(uniq_labels)}
+            self.label_to_name={i:uniq_label for i, uniq_label in enumerate(uniq_labels)}
+            for nl in self.name_to_labels.values():
+                self.all_labels.append(nl)
+        numeric_labels = []
+        for label in labels:
+            numeric_labels.append(self.name_to_labels[label])
+        numeric_labels = np.array(numeric_labels)
+        self.classifier.partial_fit(data, numeric_labels, classes=self.all_labels)
     def predict(self, data):
         if self.restored_from_file:
             return self.predict_from_json(data)

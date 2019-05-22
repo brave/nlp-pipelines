@@ -35,6 +35,11 @@ class NLP_Model:
         if self.representation is not None:
             rep = self.apply_transforms(data)
         self.classifier.train(rep,labels)
+    def partial_train(self, data, labels,uniq_labels):
+        rep = data
+        if self.representation is not None:
+            rep = self.apply_transforms(data)
+        self.classifier.partial_train(rep,labels,uniq_labels)
     def predict(self, data):
         rep = data
         if self.representation is not None:
