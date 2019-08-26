@@ -23,3 +23,14 @@ class Hashed_ngrams:
         rtn['params']['ngrams_range'] = self.n_range
         rtn['params']['num_buckets'] = self.num_buckets
         return rtn
+
+def from_json(transformations_json):
+    rtn = []
+    for transformation in transformations_json:
+        if transformation['transformation_type']=='TO_LOWER':
+            rtn.append(To_lower())
+        elif transformation['transformation_type']=='HASHED_NGRAMS':
+            params = transformation['params']
+            rtn.append(Hashed_ngrams(n_range=params['ngrams_range'], num_buckets=params['num_buckets'] ) )
+    return rtn
+    

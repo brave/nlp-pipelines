@@ -1,5 +1,6 @@
 from binascii import crc32
 import numpy as np 
+from scipy import sparse
 
 
 def ngram_hash(text, n, num_buckets=10000):
@@ -31,4 +32,4 @@ def get_dense_hash_count(texts, n_range=[1,2,3,4,5,6], num_buckets=10000):
         tmp  = count_hashed_ngrams(text,n_range=n_range, num_buckets=num_buckets)
         for idx, count in tmp.items():
             rtn[i,idx] = count
-    return rtn
+    return sparse.csr_matrix(rtn)

@@ -16,7 +16,7 @@ class NLP_Model:
     def __init__(self, language, representation=None, 
                 classifier_type=Classifier_Type.LINEAR, version = PIPELINE_VERSION, 
                 classifier = None):
-        if language not in Language.__members__:
+        if language.upper() not in Language.__members__:
             raise ValueError('Unknown language')
         self.version = version
         self.language = language
@@ -60,4 +60,7 @@ class NLP_Model:
             f.write(json.dumps(tmp))
 
 def load_model(filename):
-    pass
+    with open(filename,'r') as f:
+        json_pipeline = json.loads(f.read())
+    json_transformations = json_pipeline['transformations']
+    json_classifier = json_pipeline['classifier']
