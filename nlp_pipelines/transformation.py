@@ -1,5 +1,5 @@
 from . hash_vectorizer import get_dense_hash_count
-
+import numpy as np 
 class To_lower:
     def __init__(self):
         pass
