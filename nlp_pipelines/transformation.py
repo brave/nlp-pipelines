@@ -24,6 +24,20 @@ class Hashed_ngrams:
         rtn['params']['num_buckets'] = self.num_buckets
         return rtn
 
+class Normalize: 
+    def __init__(self):
+        pass 
+    def apply(self, X):
+        rtn = X
+        sum_squared = np.sum(X**2, axis = 1)
+        for i, s in enumerate(sum_squared):
+            rtn[i] = X[i]/s
+        return rtn
+    def to_json(self):
+        return { "transformation_type": "NORMALIZE"}
+    
+
+
 def from_json(transformations_json):
     rtn = []
     for transformation in transformations_json:
