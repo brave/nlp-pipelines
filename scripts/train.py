@@ -44,15 +44,16 @@ if __name__ == "__main__":
         exit(1)
     print('loading data')
     data_df = pd.read_csv(data_file)
-    data_df=data_df[data_df['length']>150]
+    if 'length' in data_df.columns:
+        data_df=data_df[data_df['length']>150]
     to_lower = To_lower()
-    hashed_ngrams = Hashed_ngrams(num_buckets=10000, n_range=[4,5])
+    hashed_ngrams = Hashed_ngrams(num_buckets=10000, n_range=[2,4])
     normalize = Normalize()
     model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams, normalize],classifier_type = 'LINEAR')
 
     model.classifier.classifier.max_iter=3000 #give you some more room to learn
-    texts = data_df['extracted_text']
-    labels = data_df['subcategory']
+    texts = data_df[input_column]
+    labels = data_df[target_column]
     print('training')
     model.train(texts,labels)
     model.save(output_file)
