@@ -43,7 +43,7 @@ if __name__ == "__main__":
         print("No language specified")
         exit(1)
     print('loading data')
-    data_df = pd.read_csv('../jumbo_with_categories1.csv')
+    data_df = pd.read_csv(data_file)
     data_df=data_df[data_df['length']>150]
     to_lower = To_lower()
     hashed_ngrams = Hashed_ngrams(num_buckets=10000, n_range=[4,5])
