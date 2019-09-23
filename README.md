@@ -1,6 +1,17 @@
 # nlp-pipelines
 
-NLP pipelines for in-browser functionality
+NLP pipelines & models for in-browser functionality
+
+#testing 
+to test the example japanese model: 
+```
+python scripts/test_predictions.py -m models/jp_modelv1.json.gz -u https://www.rakuteneagles.jp/
+```
+similarly usage for the english model: 
+
+```
+python scripts/test_predictions.py -m models/english_hashed.json.gz -u https://brave.com
+```
 
 ## Background 
 
