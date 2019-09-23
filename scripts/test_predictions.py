@@ -7,6 +7,8 @@ import gzip
 import requests
 from nlp_pipelines import hash_vectorizer
 from optparse import OptionParser
+import gzip 
+
 
 space_chars = ['\t', '\n', '\r', '\x0b', '\x0c', '\\t', '\\n', '\\r', '\\x0b', '\\x0c']
 
@@ -59,8 +61,8 @@ def get_page_elements(html):
     return rtn
 
 def load_model(model_path):
-    with open(model_path,'r') as f:
-        model = json.loads(f.read())
+    with gzip.GzipFile(model_path, 'r') as f:
+        model = json.loads(f.read().decode('utf-8'))
     return model
 
 def extract_text_from_url(url):

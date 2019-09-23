@@ -9,12 +9,7 @@ class Classifier_Type(EnumMeta):
 
 def build_classifier(classifier_type, **kwargs):
     if classifier_type == Classifier_Type.LINEAR:
-        # if 'C' in kwargs:
-        #     # model = LinearSVC(C=kwargs['C'])
-        #     model = SGDClassifier()
-        # else: 
-        #     model = SGDClassifier()
-        model = LinearSVC()
+        model = LinearSVC(class_weight='balanced',  verbose=1)
         return model 
     else:
         raise ValueError('Unknown classifier type')

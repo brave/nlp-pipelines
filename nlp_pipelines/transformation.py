@@ -29,8 +29,7 @@ class Normalize:
         pass 
     def apply(self, X):
         rtn = X
-        sum_squared = np.sum(X**2, axis = 1)
-        for i, s in enumerate(sum_squared):
+        for i, s in enumerate(X):
             rtn[i] = X[i]/s
         return rtn
     def to_json(self):
