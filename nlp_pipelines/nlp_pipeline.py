@@ -11,6 +11,8 @@ class Language(Enum):
     DE = "DE"
     FR = "FR"
     JA = "JA"
+    ES = "ES"
+
 
 class NLP_Model:
     def __init__(self, language, representation=None, 

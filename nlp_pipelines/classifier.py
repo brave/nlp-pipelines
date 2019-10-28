@@ -1,3 +1,4 @@
+
 from enum import EnumMeta
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import SGDClassifier
@@ -9,7 +10,7 @@ class Classifier_Type(EnumMeta):
 
 def build_classifier(classifier_type, **kwargs):
     if classifier_type == Classifier_Type.LINEAR:
-        model = LinearSVC(class_weight='balanced',  verbose=1)
+        model = LinearSVC( verbose=1 )
         return model 
     else:
         raise ValueError('Unknown classifier type')

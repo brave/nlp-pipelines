@@ -8,7 +8,7 @@ import requests
 from nlp_pipelines import hash_vectorizer
 from optparse import OptionParser
 import gzip 
-
+from sklearn.preprocessing import normalize as normalize_sk
 
 space_chars = ['\t', '\n', '\r', '\x0b', '\x0c', '\\t', '\\n', '\\r', '\\x0b', '\\x0c']
 
@@ -91,6 +91,10 @@ def vectorize_text(text,transformations):
             rtn = hash_vectorizer.get_dense_hash_count([rtn], 
                     n_range = transformation['params']['ngrams_range'], 
                     num_buckets = transformation['params']['num_buckets'])
+        elif transformation['transformation_type'] == 'NORMALIZE':
+            print('NORMALIZING')
+            rtn = normalize_sk(rtn)
+
     return rtn
 
 def classify_page(url, model, max_pages = 5):

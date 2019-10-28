@@ -1,5 +1,6 @@
 from . hash_vectorizer import get_dense_hash_count
 import numpy as np 
+from sklearn.preprocessing import normalize as normalize_sk
 class To_lower:
     def __init__(self):
         pass
@@ -28,10 +29,7 @@ class Normalize:
     def __init__(self):
         pass 
     def apply(self, X):
-        rtn = X
-        for i, s in enumerate(X):
-            rtn[i] = X[i]/s
-        return rtn
+        return normalize_sk(X)
     def to_json(self):
         return { "transformation_type": "NORMALIZE"}
     
