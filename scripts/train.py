@@ -44,8 +44,9 @@ if __name__ == "__main__":
         exit(1)
     print('loading data')
     data_df = pd.read_csv(data_file)
-    if 'length' in data_df.columns:
-        data_df=data_df[data_df['length']>150]
+    # recalculate lengths in case of missing entries:
+    data_df['length'] = [len(text) for text in data_df[input_column]
+    data_df=data_df[data_df['length']>150]
     print('Loaded ', len(data_df), ' rows')
     to_lower = To_lower()
     hashed_ngrams = Hashed_ngrams(num_buckets=10000, n_range=[4,5])
