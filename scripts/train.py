@@ -6,6 +6,18 @@ from nlp_pipelines.transformation import To_lower, Hashed_ngrams, Normalize
 from nlp_pipelines.nlp_pipeline import NLP_Model, load_model
 import pandas as pd 
 from optparse import OptionParser
+import re
+
+
+
+
+def clean_texts(texts, regex_pattern=u'(?ui)\\b\\w*[a-z]+\\w*\\b'):
+    token_pattern = re.compile(regex_pattern)
+    rtn = []
+    for text in texts: 
+        rtn.append(' '.join(token_pattern.findall(text.lower())))
+    return rtn
+
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -49,13 +61,14 @@ if __name__ == "__main__":
     data_df=data_df[data_df['length']>150]
     print('Loaded ', len(data_df), ' rows')
     to_lower = To_lower()
-    hashed_ngrams = Hashed_ngrams(num_buckets=10000, n_range=[4,6,8,10])
+    hashed_ngrams = Hashed_ngrams(num_buckets=10000, n_range=[4, 6])
     normalize = Normalize()
     model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams, normalize],classifier_type = 'LINEAR')
     #model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams],classifier_type = 'LINEAR')
 
     model.classifier.classifier.max_iter=3000 #give you some more room to learn
     texts = data_df[input_column]
+    texts = clean_texts(texts)
     labels = data_df[target_column]
     print('training')
     model.train(texts,labels)
