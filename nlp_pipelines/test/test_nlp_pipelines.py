@@ -1,6 +1,6 @@
 from nlp_pipelines.transformation import To_lower, Hashed_ngrams
 from nlp_pipelines.nlp_pipeline import NLP_Model, load_model
-
+from nlp_pipelines.transformation import clean_texts
 # import json 
 
 EPS = 1e-6
@@ -37,6 +37,11 @@ def test_train_test_python():
     for i, pred in enumerate(preds_test):
         assert (pred==test_labels[i])
 
+def test_text_cleaning():
+    gold_test_in = '''The quick brown fox jumps over the lazy dog. $123,000.0 !\"#$%&'()*+,-./:<=>?@\\[]^_`{|}~ 0123456789 \t\n\v\f\r 0x7F x123x a1b2c3 Les naïfs ægithales hâtifs pondant à Noël où il gèle sont sûrs d'être déçus en voyant leurs drôles d'œufs abîmés. Falsches Üben von Xylophonmusik quält jeden größeren Zwerg. ξεσκεπάζω την ψυχοφθόρα \\t\\n\\v\\f\\r βδελυγμία. いろはにほへど　ちりぬるを わがよたれぞ　つねならむ うゐのおくやま　けふこえて あさきゆめみじ　ゑひもせず '''
+    gold_test_out = '''The quick brown fox jumps over the lazy dog Les naïfs ægithales hâtifs pondant à Noël où il gèle sont sûrs d être déçus en voyant leurs drôles d œufs abîmés Falsches Üben von Xylophonmusik quält jeden größeren Zwerg ξεσκεπάζω την ψυχοφθόρα βδελυγμία いろはにほへど　ちりぬるを わがよたれぞ　つねならむ うゐのおくやま　けふこえて あさきゆめみじ　ゑひもせず'''
+    cleaned = clean_texts([gold_test_in])[0]
+    assert(cleaned == " ".join(gold_test_out.split() ) )
 # make sure we can save and load a model with presision within epsilon(EPS)
 # def test_save_load():
 #     train_messages, train_labels, test_messages, test_labels = setup_data()

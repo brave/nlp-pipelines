@@ -2,22 +2,10 @@
     a user supplied .csv data file. Mostly demo purposes. 
 """
 
-from nlp_pipelines.transformation import To_lower, Hashed_ngrams, Normalize
+from nlp_pipelines.transformation import To_lower, Hashed_ngrams, Normalize, clean_texts
 from nlp_pipelines.nlp_pipeline import NLP_Model, load_model
 import pandas as pd 
 from optparse import OptionParser
-import re
-
-
-
-
-def clean_texts(texts, regex_pattern=u'(?ui)\\b\\w*[a-z]+\\w*\\b'):
-    token_pattern = re.compile(regex_pattern)
-    rtn = []
-    for text in texts: 
-        rtn.append(' '.join(token_pattern.findall(text.lower())))
-    return rtn
-
 
 if __name__ == "__main__":
     parser = OptionParser()

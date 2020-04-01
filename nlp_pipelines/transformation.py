@@ -1,6 +1,9 @@
 from . hash_vectorizer import get_dense_hash_count, light_hashed_ngram_count
 import numpy as np 
 from sklearn.preprocessing import normalize as normalize_sk
+import re
+import string 
+
 class To_lower:
     def __init__(self):
         pass
@@ -33,6 +36,16 @@ class Normalize:
     def to_json(self):
         return { "transformation_type": "NORMALIZE"}
     
+
+def clean_texts(texts):
+    rx = '[' + re.escape(string.punctuation+'_\t\n\x0b\x0c\r') + ']'
+    rxx = rx+'|'+r'[^\w\s]'+'|'+'\S*\d\S*'
+    rtn = []
+    for text in texts:
+        t0 = re.sub('\\\\t\\\\n\\\\v\\\\f\\\\r',' ', text)
+        t1 = re.sub(rxx,' ', t0)
+        rtn.append(' '.join(t1.split()))
+    return rtn
 
 
 def from_json(transformations_json):

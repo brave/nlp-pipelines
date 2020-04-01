@@ -10,6 +10,8 @@ from optparse import OptionParser
 import gzip 
 from sklearn.preprocessing import normalize as normalize_sk
 import re
+from nlp_pipelines.transformation import clean_text
+
 
 space_chars = ['\t', '\n', '\r', '\x0b', '\x0c', '\\t', '\\n', '\\r', '\\x0b', '\\x0c']
 
@@ -97,12 +99,6 @@ def vectorize_text(text,transformations):
             rtn = normalize_sk(rtn)
 
     return rtn
-
-def clean_text(text, regex_pattern=u'(?ui)\\b\\w*[a-z]+\\w*\\b'):
-    token_pattern = re.compile(regex_pattern)
-    rtn = ' '.join(token_pattern.findall(text.lower()))
-    return rtn
-
 
 def classify_page(url, model, max_pages = 5):
     extracted_text = extract_text_from_url(url)
