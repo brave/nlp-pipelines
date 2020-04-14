@@ -2,6 +2,12 @@
 
 NLP pipelines & models for in-browser functionality
 
+## installation 
+
+```
+pip install .
+```
+
 #testing 
 to test the example japanese model: 
 ```
