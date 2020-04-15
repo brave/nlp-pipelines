@@ -58,7 +58,7 @@ def light_hashed_ngrams(texts, n, num_buckets=10000):
         col_idx += idx
         row_idx += [i for element in idx]
         cr_counts += counts
-    return sparse.csr_matrix((cr_counts,(row_idx,col_idx)), shape = (len(texts), num_buckets))
+    return sparse.csr_matrix((cr_counts,(row_idx,col_idx)), shape = (len(texts), num_buckets), dtype=np.uint16)
 
 def light_hashed_ngram_count(texts, n_range=[5], num_buckets=10000):
     rtn = [] 

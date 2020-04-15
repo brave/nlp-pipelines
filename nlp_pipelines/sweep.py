@@ -65,7 +65,7 @@ def sweep(df_path, vec_params, classifier_params, out_path, n_splits=10, **kwarg
         n_range = vec_param['n_range']
         num_buckets = vec_param['num_buckets']
         X = light_hashed_ngram_count(texts,n_range=n_range, num_buckets=num_buckets)
-        X = normalize(X)
+        X = normalize(X).astype(np.float32) # check for differences with float16
         n_jobs = min(n_splits, cpu_count())
         for classifier_param in classifier_params:
             skf = StratifiedKFold(n_splits=n_splits)
