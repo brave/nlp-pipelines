@@ -1,7 +1,7 @@
 from binascii import crc32
 import numpy as np 
 from scipy import sparse
-
+from collections import Counter
 
 def ngram_hash(text, n, num_buckets=10000):
     ''' Hash a string of text to a series of integer values
@@ -34,37 +34,32 @@ def get_dense_hash_count(texts, n_range=[1,2,3,4,5,6], num_buckets=10000):
             rtn[i,idx] = count
     return sparse.csr_matrix(rtn)
 
-def ngram_hash_count(text, n, num_buckets=10000):
-    ''' Hash a string of text to a series of integer values
-        based on its substrings modulo a number of 'buckets' '''
-    rtn = {}
-    for i in range( len(text) -n +1):
-        fragment = bytes(text[i:(i+n)], 'utf-8')
-        bucket = crc32(fragment) % num_buckets 
-        if bucket in rtn:
-            rtn[bucket] += 1
-        else:
-            rtn[bucket] = 1
-    idx = sorted(rtn.keys())
-    counts = [rtn[i] for i in idx]
-    return (idx, counts)
+def char_ngrams(text_bytes, n_range):
+    """Tokenize text_document into a sequence of character n-grams"""
+    
+    text_len = len(text_bytes)
+    ngrams = []
 
-def light_hashed_ngrams(texts, n, num_buckets=10000):
+    # bind method outside of loop to reduce overhead
+    ngrams_append = ngrams.append
+
+    for n in n_range:
+        for i in range(text_len -n +1):
+            ngrams_append(text_bytes[i: i + n])
+    return ngrams
+
+def light_hashed_ngram_count(texts, n_range=[5], num_buckets=10000):
     col_idx = []
     row_idx = []
     cr_counts = []
-    for i, text in enumerate(texts): 
-        idx, counts = ngram_hash_count(text, n, num_buckets=num_buckets)
-        col_idx += idx
-        row_idx += [i for element in idx]
-        cr_counts += counts
+    grams = [ char_ngrams(bytes(text,'utf-8'), n_range) for text in texts ]
+    col_append = col_idx.append
+    row_append = row_idx.append
+    cr_append = cr_counts.append 
+    for i, this_grams in enumerate(grams):
+        counter =  Counter( [ crc32(gram) % num_buckets for gram in this_grams ] )
+        for col_el, col_count in list( counter.items() ):
+            col_append(col_el)
+            row_append(i)
+            cr_append(col_count)
     return sparse.csr_matrix((cr_counts,(row_idx,col_idx)), shape = (len(texts), num_buckets), dtype=np.uint16)
-
-def light_hashed_ngram_count(texts, n_range=[5], num_buckets=10000):
-    rtn = [] 
-    for n in n_range:
-        rtn.append(light_hashed_ngrams(texts,n,num_buckets=num_buckets))
-    if len(n_range)>1:
-        return np.sum(rtn)
-    else:
-        return rtn[0]
