@@ -12,6 +12,8 @@ class Language(Enum):
     FR = "FR"
     JA = "JA"
     ES = "ES"
+    PT = "PT"
+    EL = "EL"
 
 
 class NLP_Model:

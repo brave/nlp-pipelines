@@ -52,12 +52,13 @@ def light_hashed_ngram_count(texts, n_range=[5], num_buckets=10000):
     col_idx = []
     row_idx = []
     cr_counts = []
-    grams = [ char_ngrams(bytes(text,'utf-8'), n_range) for text in texts ]
+    # grams = [ char_ngrams(bytes(text,'utf-8'), n_range) for text in texts ]
     col_append = col_idx.append
     row_append = row_idx.append
     cr_append = cr_counts.append 
-    for i, this_grams in enumerate(grams):
-        counter =  Counter( [ crc32(gram) % num_buckets for gram in this_grams ] )
+    for i, text in enumerate(texts):
+        grams = char_ngrams(bytes(text,'utf-8'), n_range) 
+        counter =  Counter( [ crc32(gram) % num_buckets for gram in grams ] )
         for col_el, col_count in list( counter.items() ):
             col_append(col_el)
             row_append(i)

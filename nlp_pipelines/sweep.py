@@ -53,9 +53,17 @@ def validate(train_idx, test_idx, urls, uniq_urls, X, url2target, label_encoder,
                                 output_dict=True)
     return dict(rep=rep)
 
-def sweep(df_path, vec_params, classifier_params, out_path, n_splits=10, **kwargs):
-    df = clean_df(df_path)
-    urls, texts, url2target, uniq_urls, uniq_targets = preprocess_data(df)
+def sweep(df_path, vec_params, classifier_params, out_path, n_splits=5, **kwargs):
+    if 'input_column' in kwargs:
+        input_column=kwargs['input_column']
+    else: 
+        input_column = 'extracted_text'
+    if 'target_column' in kwargs:
+        target_column = kwargs['target_column']
+    else:
+        target_column = 'subcategory'
+    df = clean_df(df_path,input_column=input_column)
+    urls, texts, url2target, uniq_urls, uniq_targets = preprocess_data(df,input_column=input_column, target_column=target_column)
     texts = [text.lower() for text in texts]
     label_encoder = LabelEncoder()
     label_encoder.fit(sorted(list(set(uniq_targets))))
@@ -75,6 +83,10 @@ def sweep(df_path, vec_params, classifier_params, out_path, n_splits=10, **kwarg
             to_write = {'params':param_combo}
             to_write['results'] = out
             to_write['input_path'] = df_path
+            to_write['input_column'] = input_column
+            to_write['target_column'] = target_column
+            if 'language' in kwargs:
+                to_write['language']=kwargs['language']
             param_combo = json.dumps(param_combo)
             file_name = calc_filename(param_combo)
             if not os.path.isdir(out_path):
@@ -83,3 +95,41 @@ def sweep(df_path, vec_params, classifier_params, out_path, n_splits=10, **kwarg
                 f.write(json.dumps(to_write))
             rtn[param_combo]=out
     return rtn
+
+def serial_sweep(df_path, vec_param, classifier_params, out_path, n_splits=5, **kwargs):
+    ''' sometimes data are just too big to run fully in parralel effectively, this can be spawned a few times to sweep different parameter combinations serially'''
+    if 'input_column' in kwargs:
+        input_column=kwargs['input_column']
+    else: 
+        input_column = 'extracted_text'
+    if 'target_column' in kwargs:
+        target_column = kwargs['target_column']
+    else:
+        target_column = 'subcategory'
+    df = clean_df(df_path,input_column=input_column)
+    urls, texts, url2target, uniq_urls, uniq_targets = preprocess_data(df,input_column=input_column, target_column=target_column)
+    texts = [text.lower() for text in texts]
+    label_encoder = LabelEncoder()
+    label_encoder.fit(sorted(list(set(uniq_targets))))
+    # vectorize
+    rtn ={}
+    n_range = vec_param['n_range']
+    num_buckets = vec_param['num_buckets']
+    X = light_hashed_ngram_count(texts,n_range=n_range, num_buckets=num_buckets)
+    X = normalize(X).astype(np.float32) # check for differences with float16
+    for classifier_param in classifier_params:
+        skf = StratifiedKFold(n_splits=n_splits)
+        out = []
+        for train_index, test_index in skf.split(uniq_urls, uniq_targets):
+            out.append( validate(train_index, test_index, urls, uniq_urls, X, url2target, label_encoder, classifier_param) )
+        param_combo = {'vectorizer':vec_param, 'regularizer':classifier_param}
+        to_write = {'params':param_combo}
+        to_write['results'] = out
+        to_write['input_path'] = df_path
+        param_combo = json.dumps(param_combo)
+        file_name = calc_filename(param_combo)
+        if not os.path.isdir(out_path):
+            os.mkdir(out_path)
+        with open(os.path.join(out_path, file_name),'w') as f:
+            f.write(json.dumps(to_write))
+    return 
