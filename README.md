@@ -1,6 +1,6 @@
 # nlp-pipelines
 
-NLP pipelines & models for in-browser functionality
+Natural language processing pipelines & models for in-browser functionality
 
 ## installation 
 
