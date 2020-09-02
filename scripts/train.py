@@ -49,7 +49,7 @@ if __name__ == "__main__":
     data_df=data_df[data_df['length']>150]
     print('Loaded ', len(data_df), ' rows')
     to_lower = To_lower()
-    hashed_ngrams = Hashed_ngrams(num_buckets=10000, n_range=[4, 6])
+    hashed_ngrams = Hashed_ngrams(num_buckets=10000, n_range=[4])
     normalize = Normalize()
     model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams, normalize],classifier_type = 'LINEAR')
     #model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams],classifier_type = 'LINEAR')

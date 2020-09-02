@@ -8,9 +8,9 @@ import numpy as np
 class Classifier_Type(EnumMeta):
     LINEAR = "LINEAR"# linear svm
 
-def build_classifier(classifier_type, **kwargs):
+def build_classifier(classifier_type, reg_param=1.0, **kwargs):
     if classifier_type == Classifier_Type.LINEAR:
-        model = LinearSVC( verbose=1 )
+        model = LinearSVC( verbose=1, C=reg_param )
         return model 
     else:
         raise ValueError('Unknown classifier type')
@@ -31,10 +31,10 @@ def jsonify(fp_containing_object,rounding_precision):
     return json.loads(json.dumps(fp_containing_object), parse_float= lambda x:round(float(x), rounding_precision ) )#,  parse_float=lambda x: round(float(x), rounding_precision))))
 
 class Classifier:
-    def __init__(self, classifier_type = Classifier_Type.LINEAR, **kwargs):
+    def __init__(self, classifier_type = Classifier_Type.LINEAR, reg_param = 1.0, **kwargs):
         self.classifier_type = classifier_type
         self.classifier_params = kwargs
-        self.classifier = build_classifier(classifier_type, **kwargs)
+        self.classifier = build_classifier(classifier_type,reg_param=reg_param, **kwargs)
         self.restored_from_file = False
         self.name_to_labels = {}
         self.label_to_name = {}

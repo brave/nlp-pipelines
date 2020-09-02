@@ -19,14 +19,14 @@ class Language(Enum):
 class NLP_Model:
     def __init__(self, language, representation=None, 
                 classifier_type=Classifier_Type.LINEAR, version = PIPELINE_VERSION, 
-                classifier = None):
+                classifier = None, reg_param=1.0):
         if language.upper() not in Language.__members__:
             raise ValueError('Unknown language')
         self.version = version
         self.language = language
         self.representation=representation
         if classifier is None:
-            self.classifier = Classifier(classifier_type=classifier_type)
+            self.classifier = Classifier(classifier_type=classifier_type, reg_param=reg_param)
         else:
             self.classifier = classifier
     def apply_transforms(self, data):

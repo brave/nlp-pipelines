@@ -27,9 +27,13 @@ if __name__ == "__main__":
     data_df=data_df[data_df['length']>150]
     print('Loaded ', len(data_df), ' rows')
     to_lower = To_lower()
-    hashed_ngrams = Hashed_ngrams(num_buckets=10000, n_range=[4])
+    n_range = options_json['params']['vectorizer']['n_range']
+    num_buckets = options_json['params']['vectorizer']['num_buckets']
+    reg_param = options_json['params']['regularizer']
+    hashed_ngrams = Hashed_ngrams(num_buckets=num_buckets, n_range=n_range)
+    
     normalize = Normalize()
-    model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams, normalize],classifier_type = 'LINEAR')
+    model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams, normalize],classifier_type = 'LINEAR', reg_param=reg_param)
     #model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams],classifier_type = 'LINEAR')
 
     model.classifier.classifier.max_iter=3000 #give you some more room to learn
