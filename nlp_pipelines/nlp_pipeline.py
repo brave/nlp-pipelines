@@ -2,7 +2,7 @@ from . classifier import Classifier, Classifier_Type
 from enum import Enum
 from datetime import datetime
 import json
-#from . pipeline_pb2 import Pipeline
+import os
 
 PIPELINE_VERSION = 1
 
@@ -15,6 +15,23 @@ class Language(Enum):
     PT = "PT"
     EL = "EL"
 
+Language_to_code = {
+    'EN' : 'emgmepnebbddgnkhfmhdhmjifkglkamo',
+    'FR' : 'hbejpnagkgeeohiojniljejpdpojmfdp',
+    'DE' : 'eclclcmhpefndfimkgjknaenojpdffjp',
+    'JA' : 'ncnmgkcadooabjhgjlkkdipdnfokpjnm',
+    'PT' : 'ikpplkdenofcphgejneekjmhepajgopf',
+    'ES' : 'ahiocclicnhmiobhocikfdamfccbehhn'
+}
+
+def build_manifest(country_string):
+    manifest = {}
+    manifest['schemaVersion'] = PIPELINE_VERSION
+    manifest['models'] = [{}]
+    manifest['models'][0]['id'] = country_string
+    manifest['models'][0]['filename'] = country_string
+    manifest['models'][0]['version'] = PIPELINE_VERSION
+    return json.dumps(manifest)
 
 class NLP_Model:
     def __init__(self, language, representation=None, 
@@ -58,10 +75,16 @@ class NLP_Model:
             rtn["transformations"].append(t.to_json()) 
         rtn["classifier"] = self.classifier.to_json()
         return rtn
-    def save(self, filename):
+    def save(self, output_dir):
+        country_string = Language_to_code[self.language]
         tmp = self.to_json()
-        with open(filename, 'w') as f:
+        manifest = build_manifest(country_string)
+        if not os.path.isdir(output_dir):
+            os.mkdir(output_dir)
+        with open( os.path.join(output_dir, country_string) , 'w') as f:
             f.write(json.dumps(tmp))
+        with open( os.path.join(output_dir, 'manifest.json') , 'w') as f:
+            f.write(manifest)
 
 def load_model(filename):
     with open(filename,'r') as f:

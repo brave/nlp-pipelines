@@ -18,7 +18,7 @@ if __name__ == "__main__":
     input_column = options_json['input_column']
     target_column = options_json['target_column']
     language = options_json['language']
-    output_file = language+'_'+datetime.now().strftime('%Y-%m-%d')+'.json'
+    output_dir = language+'_'+datetime.now().strftime('%Y-%m-%d')
     
     print('loading data')
     data_df = pd.read_csv(data_file)
@@ -30,8 +30,8 @@ if __name__ == "__main__":
     n_range = options_json['params']['vectorizer']['n_range']
     num_buckets = options_json['params']['vectorizer']['num_buckets']
     reg_param = options_json['params']['regularizer']
+
     hashed_ngrams = Hashed_ngrams(num_buckets=num_buckets, n_range=n_range)
-    
     normalize = Normalize()
     model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams, normalize],classifier_type = 'LINEAR', reg_param=reg_param)
     #model = NLP_Model(language=language, representation=[to_lower, hashed_ngrams],classifier_type = 'LINEAR')
@@ -42,4 +42,4 @@ if __name__ == "__main__":
     labels = data_df[target_column]
     print('training')
     model.train(texts,labels)
-    model.save(output_file)
+    model.save(output_dir)
