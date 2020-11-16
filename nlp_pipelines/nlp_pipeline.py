@@ -14,14 +14,44 @@ class Language(Enum):
     ES = "ES"
     PT = "PT"
     EL = "EL"
-
+    AR = 'AR'
+    FI = 'FI'
+    HE = 'HE'
+    HI = 'HI'
+    IT = 'IT'
+    KO = 'KO'
+    NL = 'NL'
+    PL = 'PL'
+    RO = 'RO'
+    RU = 'RU'
+    SV = 'SV'
+    TL = 'TL'
+    TR = 'TR'
+    ZH = 'ZH'
+    
 Language_to_code = {
     'EN' : 'emgmepnebbddgnkhfmhdhmjifkglkamo',
     'FR' : 'hbejpnagkgeeohiojniljejpdpojmfdp',
     'DE' : 'eclclcmhpefndfimkgjknaenojpdffjp',
     'JA' : 'ncnmgkcadooabjhgjlkkdipdnfokpjnm',
     'PT' : 'ikpplkdenofcphgejneekjmhepajgopf',
-    'ES' : 'ahiocclicnhmiobhocikfdamfccbehhn'
+    'ES' : 'ahiocclicnhmiobhocikfdamfccbehhn',
+    'AR' : 'hfiknbegiiiigegdgpcgekhdlpdmladb',
+    'EL' : 'aefhgfnampgebnpchhfkaoaiijpmhcca',
+    'FI' : 'djokgcimofealcnfijnlfdnfajpdjcfg',
+    'HE' : 'gffjpkbdngpbfkflpnoodjfkpelbappk',
+    'HI' : 'emhbebmifclalgbdpodobmckfehlkhfp',
+    'IT' : 'ijaiihoedhaocihjjkfjnhfhbceekdkg',
+    'KO' : 'jbhiacghlejpbieldkdfkgenhnolndlf',
+    'NL' : 'opoleacilplnkhobipjcihpdoklpnjkk',
+    'PL' : 'aijecnhpjljblhnogamehknbmljlbfgn',
+    'RO' : 'hffipkehifobjlkdjagndofmpjnpkgje',
+    'RU' : 'nigmjcnboijpcoikglccmoncigioojpa',
+    'SV' : 'jpgndiehmchkacbfggdgkoohioocdhbp',
+    'TL' : 'kcoilhabhhnfdakenmhddnhngngggcmp',
+    'TR' : 'kpdcfihnokkbialolpedfamclbdlgopi',
+    'ZH' : 'oblfikajhadjnmjiihdchdfdcfehlbpj'
+
 }
 
 def build_manifest(country_string):
