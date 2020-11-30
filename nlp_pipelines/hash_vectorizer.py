@@ -2,6 +2,8 @@ from binascii import crc32
 import numpy as np 
 from scipy import sparse
 from collections import Counter
+from joblib import Parallel, delayed
+
 
 def ngram_hash(text, n, num_buckets=10000):
     ''' Hash a string of text to a series of integer values
@@ -64,3 +66,22 @@ def light_hashed_ngram_count(texts, n_range=[5], num_buckets=10000):
             row_append(i)
             cr_append(col_count)
     return sparse.csr_matrix((cr_counts,(row_idx,col_idx)), shape = (len(texts), num_buckets), dtype=np.uint16)
+
+def get_chunks(texts, num_chunks = 8):
+    rtn = []
+    chunk_size = ( len(texts) // num_chunks ) + 1
+    for chunk in range(num_chunks):
+        rtn.append(texts[chunk*chunk_size:(chunk+1)*chunk_size])
+    return rtn
+
+def par_count0(structured_input):
+    texts = structured_input['texts']
+    n_range = structured_input['n_range']
+    num_buckets = structured_input['num_buckets']
+    return light_hashed_ngram_count(texts, n_range=n_range, num_buckets=num_buckets)
+
+def parallel_hashed_ngram_count(texts, n_range=[5], num_buckets=10000, num_chunks=8):
+    chunks = get_chunks(texts, num_chunks=num_chunks)
+    structured_chunks = [{'texts':chunk, 'n_range':n_range, 'num_buckets':num_buckets} for chunk in chunks]
+    tmp = Parallel(n_jobs=num_chunks)(delayed(par_count0)(chunk) for chunk in structured_chunks)
+    return sparse.vstack([t for t in tmp])
