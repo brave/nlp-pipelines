@@ -62,9 +62,9 @@ def light_hashed_ngram_count(texts, n_range=[5], num_buckets=10000):
         grams = char_ngrams(bytes(text,'utf-8'), n_range) 
         counter =  Counter( [ crc32(gram) % num_buckets for gram in grams ] )
         for col_el, col_count in list( counter.items() ):
-            col_append(col_el)
-            row_append(i)
-            cr_append(col_count)
+            col_append(np.uint16(col_el))
+            row_append(np.uint32(i))
+            cr_append(np.uint16(col_count))
     return sparse.csr_matrix((cr_counts,(row_idx,col_idx)), shape = (len(texts), num_buckets), dtype=np.uint16)
 
 def get_chunks(texts, num_chunks = 8):

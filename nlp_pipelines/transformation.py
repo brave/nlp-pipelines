@@ -1,4 +1,4 @@
-from . hash_vectorizer import get_dense_hash_count, light_hashed_ngram_count
+from . hash_vectorizer import get_dense_hash_count, light_hashed_ngram_count, parallel_hashed_ngram_count
 import numpy as np 
 from sklearn.preprocessing import normalize as normalize_sk
 import re
@@ -21,7 +21,7 @@ class Hashed_ngrams:
         self.num_buckets=num_buckets
     def apply(self, texts):
         # return light_hashed_ngram_count(texts, n_range=self.n_range, num_buckets=self.num_buckets)
-        parallel_hashed_ngram_count(texts, n_range=self.n_range, num_buckets=self.num_buckets)
+        return parallel_hashed_ngram_count(texts, n_range=self.n_range, num_buckets=self.num_buckets)
     def to_json(self):
         rtn = { "transformation_type": "HASHED_NGRAMS"}
         rtn['params'] = {}
