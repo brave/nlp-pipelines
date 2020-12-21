@@ -1,7 +1,7 @@
 from enum import EnumMeta
 import json
 import numpy as np
-from sklearn.calibration import CalibratedClassifierCV
+from sklearn.svm import LinearSVR
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import SGDClassifier
 
@@ -11,11 +11,13 @@ class Classifier_Type(EnumMeta):
     LINEAR = "LINEAR" # linear svm
 
 
-def build_classifier(classifier_type, reg_param=1.0, prob_calibration=False, **kwargs):
+def build_classifier(classifier_type, reg_param=1.0, bin_classifier=False, **kwargs):
     if classifier_type == Classifier_Type.LINEAR:
-        model = LinearSVC(verbose=1, C=reg_param)
-        if prob_calibration:
-            model = CalibratedClassifierCV(model)
+        model = None
+        if bin_classifier:
+            model = LinearSVR(verbose=1, C=reg_param)
+        else:
+            model = LinearSVC(verbose=1, C=reg_param)
         return model
     else:
         raise ValueError('Unknown classifier type')
@@ -41,8 +43,8 @@ class Classifier:
         self.classifier_params = kwargs
         self.classifier = build_classifier(self.classifier_type,
                                            reg_param=self.reg_param,
-                                           prob_calibration=False,
-                                           self.classifier_params)
+                                           bin_classifier=False,
+                                           **self.classifier_params)
         self.restored_from_file = False
         self.name_to_labels = {}
         self.label_to_name = {}
@@ -55,8 +57,8 @@ class Classifier:
         if len(uniq_labels) == 2:
             self.classifier = build_classifier(self.classifier_type,
                                                reg_param=self.reg_param,
-                                               prob_calibration=True,
-                                               self.classifier_params)
+                                               bin_classifier=True,
+                                               **self.classifier_params)
             if positive_class is None:
                 self.positive_class = uniq_labels[1]
             else:
@@ -94,8 +96,14 @@ class Classifier:
     def predict_from_model(self, data):
         preds = self.classifier.predict(data)
         rtn = []
-        for pred in preds: 
-            rtn.append(self.label_to_name[pred])
+        for pred in preds:
+            if self.positive_class is None:
+                rtn.append(self.label_to_name[pred])
+            else:
+                class_pred = pred
+                class_pred = max(class_pred, 0.0)
+                class_pred = min(class_pred, 1.0)
+                rtn.append(self.label_to_name[int(class_pred)])
         return rtn
 
     def predict_from_json(self, data):
@@ -116,20 +124,20 @@ class Classifier:
     def to_json(self, rounding_precision=4):
         rtn = {}
         rtn['classifier_type'] = self.classifier_type
+
         classes = []
-        for c in self.classifier.classes_:
-            classes.append(self.label_to_name[c])
-        if len(classes) == 2:
-            rtn['classes'] = [classes[1]]
-        else:
-            rtn['classes'] = classes
         class_weights = {}
-        # Handling the binary classification case with a single output value
-        if len(classes) == 2:
-            class_weights[classes[1]] = self.classifier.coef_[0, :].tolist()
-        else:
+        if self.positive_class is None:
+            for c in self.classifier.classes_:
+                classes.append(self.label_to_name[c])
+            rtn['classes'] = classes
             for i, class_name in enumerate(classes):
                 class_weights[class_name] = self.classifier.coef_[i, :].tolist()
+        else:
+            # Handling the binary classification case with a single output value
+            rtn['classes'] = [self.positive_class]
+            class_weights[self.positive_class] = self.classifier.coef_.tolist()
+
         rtn['class_weights'] = class_weights
         rtn['class_weights'] = jsonify(class_weights, rounding_precision)
         if 'class_log_prior_' in self.classifier.__dict__:
