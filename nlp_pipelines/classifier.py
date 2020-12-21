@@ -1,20 +1,24 @@
 from enum import EnumMeta
 import json
 import numpy as np
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import SGDClassifier
 
 # from . import pipeline_pb2
+
 class Classifier_Type(EnumMeta):
     LINEAR = "LINEAR" # linear svm
 
-def build_classifier(classifier_type, reg_param=1.0, **kwargs):
+
+def build_classifier(classifier_type, reg_param=1.0, prob_calibration=False, **kwargs):
     if classifier_type == Classifier_Type.LINEAR:
         model = LinearSVC(verbose=1, C=reg_param)
+        if prob_calibration:
+            model = CalibratedClassifierCV(model)
         return model
     else:
         raise ValueError('Unknown classifier type')
-
 
 '''++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    +         NOTE:  ABOUT SERIALIZING CLASSIFIERS TO JSON         +
@@ -33,8 +37,12 @@ def jsonify(fp_containing_object,rounding_precision):
 class Classifier:
     def __init__(self, classifier_type=Classifier_Type.LINEAR, reg_param=1.0, **kwargs):
         self.classifier_type = classifier_type
+        self.reg_param = reg_param
         self.classifier_params = kwargs
-        self.classifier = build_classifier(classifier_type, reg_param=reg_param, **kwargs)
+        self.classifier = build_classifier(self.classifier_type,
+                                           reg_param=self.reg_param,
+                                           prob_calibration=False,
+                                           self.classifier_params)
         self.restored_from_file = False
         self.name_to_labels = {}
         self.label_to_name = {}
@@ -45,6 +53,10 @@ class Classifier:
     def map_names_to_labels(self, labels, positive_class=None):
         uniq_labels = sorted(list(set(labels)))
         if len(uniq_labels) == 2:
+            self.classifier = build_classifier(self.classifier_type,
+                                               reg_param=self.reg_param,
+                                               prob_calibration=True,
+                                               self.classifier_params)
             if positive_class is None:
                 self.positive_class = uniq_labels[1]
             else:
