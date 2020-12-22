@@ -103,6 +103,7 @@ class Classifier:
                 class_pred = pred
                 class_pred = max(class_pred, 0.0)
                 class_pred = min(class_pred, 1.0)
+                class_pred = round(class_pred)
                 rtn.append(self.label_to_name[int(class_pred)])
         return rtn
 
