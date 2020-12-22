@@ -87,6 +87,26 @@ class Classifier:
         numeric_labels = np.array(numeric_labels)
         self.classifier.partial_fit(data, numeric_labels, classes=self.all_labels)
 
+    def predict_scores(self, data):
+        if self.restored_from_file:
+            return self.predict_scores_from_json(data)
+        else:
+            return self.predict_scores_from_model(data)
+
+    def predict_scores_from_model(self, data):
+        preds = self.classifier.predict(data)
+        return preds
+
+    def predict_scores_from_json(self, data):
+        preds = []
+        for c_name, c_weights in self.class_weights.items():
+            preds.append(data.dot( np.array(c_weights) ))
+        if self.classifier_type == Classifier_Type.NB:
+            for i, prior in enumerate(self.class_priors):
+                preds[i] += prior
+        preds = np.array(preds)
+        return preds
+
     def predict(self, data):
         if self.restored_from_file:
             return self.predict_from_json(data)
@@ -141,14 +161,14 @@ class Classifier:
 
         rtn['class_weights'] = class_weights
         rtn['class_weights'] = jsonify(class_weights, rounding_precision)
-        if 'class_log_prior_' in self.classifier.__dict__:
-            rtn['biases'] = jsonify(self.classifier.class_log_prior_.tolist(), rounding_precision)
+        if 'intercept_' in self.classifier.__dict__:
+            rtn['biases'] = jsonify(self.classifier.intercept_.tolist(), rounding_precision)
         else:
-            if len(classes) == 2:
-                zero_priors = [0]
+            if self.positive_class is None:
+                zero_biases = [0] * len(classes)
             else:
-                zero_priors = [0] * len(classes)
-            rtn['biases'] = jsonify(zero_priors, rounding_precision)
+                zero_biases = [0]
+            rtn['biases'] = jsonify(zero_biases, rounding_precision)
         return rtn
 
     # def to_proto(self):

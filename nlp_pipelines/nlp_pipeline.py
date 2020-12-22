@@ -99,6 +99,12 @@ class NLP_Model:
             rep = self.apply_transforms(data)
         self.classifier.partial_train(rep,labels, uniq_labels)
 
+    def predict_scores(self, data):
+        rep = data
+        if self.representation is not None:
+            rep = self.apply_transforms(data)
+        return self.classifier.predict_scores(rep)
+
     def predict(self, data):
         rep = data
         if self.representation is not None:
