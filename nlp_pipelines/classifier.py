@@ -99,6 +99,8 @@ class Classifier:
         rtn['class_weights'] = jsonify(class_weights,rounding_precision) 
         if 'class_log_prior_' in self.classifier.__dict__:
             rtn['biases'] = jsonify(self.classifier.class_log_prior_.tolist(), rounding_precision)
+        elif 'intercept_' in self.classifier.__dict__:
+            rtn['biases'] = jsonify(self.classifier.intercept_.tolist(), rounding_precision)
         else :
             zero_priors = [0 for i in range(len(classes))]
             rtn['biases'] = jsonify(zero_priors, rounding_precision)
